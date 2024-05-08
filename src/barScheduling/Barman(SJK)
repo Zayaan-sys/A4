@@ -1,0 +1,52 @@
+package barScheduling;
+
+import java.util.Comparator;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+public class Barman extends Thread {
+
+    private CountDownLatch startSignal;
+    private BlockingQueue<DrinkOrder> orderQueue;
+
+    Barman(CountDownLatch startSignal, int schedAlg) {
+        if (schedAlg == 0) {
+            this.orderQueue = new LinkedBlockingQueue<>();
+        } else if (schedAlg == 1) { // Assume 1 represents SJF
+            this.orderQueue = new PriorityBlockingQueue<>(11, new Comparator<DrinkOrder>() {
+                @Override
+                public int compare(DrinkOrder o1, DrinkOrder o2) {
+                    return Integer.compare(o1.getExecutionTime(), o2.getExecutionTime());
+                }
+            });
+        }
+        this.startSignal = startSignal;
+    }
+
+    public void placeDrinkOrder(DrinkOrder order) throws InterruptedException {
+        orderQueue.put(order);
+    }
+
+    public void run() {
+        try {
+            DrinkOrder nextOrder;
+
+            startSignal.countDown(); // Barman ready
+            startSignal.await(); // Check latch - don't start until told to do so
+
+            while (true) 
+			{
+                nextOrder = orderQueue.take();
+                System.out.println("---Barman preparing order for patron " + nextOrder.toString());
+                sleep(nextOrder.getExecutionTime()); // Processing order
+                System.out.println("---Barman has made order for patron " + nextOrder.toString());
+                nextOrder.orderDone();
+            }
+
+        } catch (InterruptedException e) {
+            System.out.println("---Barman is packing up ");
+        }
+    }
+}
