@@ -24,6 +24,7 @@ public class Barman extends Thread {
             });
         }
         this.startSignal = startSignal;
+printf();
     }
 
     public void placeDrinkOrder(DrinkOrder order) throws InterruptedException {
