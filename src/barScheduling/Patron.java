@@ -21,7 +21,9 @@ public class Patron extends Thread {
 	private int ID; //thread ID 
 	private int lengthOfOrder;
 	private long startTime, endTime; //for all the metrics
-	
+	private long startWait, endWait;
+	private long startResp, endResp;
+	private ArrayList<Long> responseTA;
 	public static FileWriter fileW;
 
 
@@ -58,19 +60,30 @@ public class Patron extends Thread {
 	        	drinksOrder[i]=new DrinkOrder(this.ID);
 	        	
 	        }
-			System.out.println("Patron "+ this.ID + " submitting order of " + lengthOfOrder +" drinks"); //output in standard format  - do not change this
+		
+		System.out.println("Patron "+ this.ID + " submitting order of " + lengthOfOrder +" drinks"); //output in standard format  - do not change this
 	        startTime = System.currentTimeMillis();//started placing orders
 			for(int i=0;i<lengthOfOrder;i++) {
 				System.out.println("Order placed by " + drinksOrder[i].toString());
 				theBarman.placeDrinkOrder(drinksOrder[i]);
 			}
+		startWait = System.currentTimeMillis(); // started placing orders
+		responseTA = new ArrayList<>();
 			for(int i=0;i<lengthOfOrder;i++) {
+				startResp = System.currentTimeMillis();
+
 				drinksOrder[i].waitForOrder();
+				endResp = System.currentTimeMillis();
+				long respT = endResp - startResp;
+				responseTA.add(respT);
+
 			}
+			endWait = System.currentTimeMillis(); // started placing orders
 
 			endTime = System.currentTimeMillis();
 			long totalTime = endTime - startTime;
-			
+			long turnAroundT = totalTime;
+			long waitingT = endWait - startWait;
 			writeToFile( String.format("%d,%d,%d\n",ID,arrivalTime,totalTime));
 			System.out.println("Patron "+ this.ID + " got order in " + totalTime);
 			
