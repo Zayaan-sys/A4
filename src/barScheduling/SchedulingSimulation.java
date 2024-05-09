@@ -27,9 +27,6 @@ public class SchedulingSimulation {
 	}
 
 	public static void main(String[] args) throws InterruptedException, IOException {
-		
-		
-
 		//deal with command line arguments if provided
 		if (args.length==1) {
 			noPatrons=Integer.parseInt(args[0]);  //total people to enter room
@@ -38,15 +35,16 @@ public class SchedulingSimulation {
 			sched=Integer.parseInt(args[1]); 
 		}
 		
-		writer = new FileWriter("turnaround_time_"+Integer.toString(sched)+".txt", false);
+		writer = new FileWriter("turnaround_time_"+InoPatrons+".txt", false);
 		Patron.fileW=writer;
 
 		startSignal= new CountDownLatch(noPatrons+2);//Barman and patrons and main method must be raeady
 		
 		//create barman
-        Andre= new Barman(startSignal,sched); 
-     	Andre.start();
-  
+       		Andre= new Barman(startSignal,sched); 
+     		Andre.start();
+  		Barman.fileWw = writer;
+
 	    //create all the patrons, who all need access to Andre
 		patrons = new Patron[noPatrons];
 		for (int i=0;i<noPatrons;i++) {
